@@ -1,5 +1,4 @@
 name: Pepperoni WorkfloW
-
 on:
   push:
     branches:
