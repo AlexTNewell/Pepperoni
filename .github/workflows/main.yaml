@@ -28,23 +28,23 @@ jobs:
 
     - name: 2b Terraform Init
       run: terraform init
-      working-directory: Pepperoni
+      working-directory: WordPress Hosted on EC2
 
     - name: Terraform Format
       run: terraform fmt
-      working-directory: Pepperoni
+      working-directory: WordPress Hosted on EC2
 
     - name: 2c Terraform Validate
       run: terraform validate
-      working-directory: Pepperoni
+      working-directory: WordPress Hosted on EC2
 
     - name: 2d Terraform Plan
       run: terraform plan
-      working-directory: Pepperoni
+      working-directory: WordPress Hosted on EC2
 
     - name: 2e Terraform Apply
       run: terraform apply -auto-approve
-      working-directory: Pepperoni
+      working-directory: WordPress Hosted on EC2
 
   C_setup_server_config:
     needs: B_build
