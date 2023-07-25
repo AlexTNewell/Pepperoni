@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 1a Checkout repository
+    - name: Checkout repository
       uses: actions/checkout@v3  
     
-    - name: 1b Set up Terraform
+    - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1 
 
   B_build: 
@@ -19,8 +19,10 @@ jobs:
     runs-on: ubuntu-latest
      
     steps:
-    - name: 2a Configure AWS credentials
+    - name: Checkout repository
     - uses: actions/checkout@v3
+  
+    - name: Configure AWS credentials
     - uses: aws-actions/setup-sam@v1
     - uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -28,7 +30,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
-    - name: 2b Terraform Init
+    - name: Terraform Init
       run: terraform init
       working-directory: WordPress Hosted on EC2
 
@@ -36,15 +38,15 @@ jobs:
       run: terraform fmt
       working-directory: WordPress Hosted on EC2
 
-    - name: 2c Terraform Validate
+    - name: Terraform Validate
       run: terraform validate
       working-directory: WordPress Hosted on EC2
 
-    - name: 2d Terraform Plan
+    - name: Terraform Plan
       run: terraform plan
       working-directory: WordPress Hosted on EC2
 
-    - name: 2e Terraform Apply
+    - name: Terraform Apply
       run: terraform apply -auto-approve
       working-directory: WordPress Hosted on EC2
 
@@ -53,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: 3a Assign Setup Server Instance ID and Public IP
+    - name: Assign Setup Server Instance ID and Public IP
       run: |
         INSTANCE_ID=$(terraform output -raw instance_id)
         echo "Instance ID: $INSTANCE_ID"
