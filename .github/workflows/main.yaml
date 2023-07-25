@@ -20,7 +20,7 @@ jobs:
      
     steps:
     - name: 2a Configure AWS credentials
-    - uses: actions/checkout@v3 
+    - uses: actions/checkout@v3
     - uses: aws-actions/setup-sam@v1
     - uses: aws-actions/configure-aws-credentials@v1
       with:
