@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  1_setup:
+  A_setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,8 +14,8 @@ jobs:
     - name: 1b Set up Terraform
       uses: hashicorp/setup-terraform@v1 
 
-  2_build: 
-    needs: 1_setup
+  B_build: 
+    needs: A_setup
     runs-on: ubuntu-latest
      
     steps:
@@ -46,8 +46,8 @@ jobs:
       run: terraform apply -auto-approve
       working-directory: Pepperoni
 
-  3_setup_server_config:
-    needs: 2_build
+  C_setup_server_config:
+    needs: B_build
     runs-on: ubuntu-latest
     
     steps:
@@ -61,8 +61,8 @@ jobs:
         echo "Instance Public IP: $PUBLIC_IP"
         echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
 
-  4_install_gh_cli:
-    needs: 3_setup_server_config
+  D_install_gh_cli:
+    needs: C_setup_server_config
     runs-on: ubuntu-latest
     steps:
     - name: Install GitHub CLI
@@ -73,16 +73,16 @@ jobs:
         sudo apt update
         sudo apt install gh
 
-  5_install_gh_cli:
-    needs: 4_install_gh_cli
+  E_install_gh_cli:
+    needs: D_install_gh_cli
     runs-on: ubuntu-latest
     steps:
     - name: Authenticate GitHub CLI
       run: |
         gh auth login --with-token <<< ${{ secrets.GH_TOKEN }}
 
-  6_save_private_key:
-    needs: 5_install_gh_cli
+  F_save_private_key:
+    needs: E_install_gh_cli
     runs-on: ubuntu-latest
     steps:
     - name: Save Private Key to GitHub Actions secrets
@@ -90,8 +90,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-  7_configure_EC2_instance:
-    needs: 6_save_private_key
+  G_configure_EC2_instance:
+    needs: F_save_private_key
     runs-on: ubuntu-latest
     steps:
     - name: Use Public IP to SSH into Setup Server and Configure EC2 Instance
@@ -130,8 +130,8 @@ jobs:
           # nano /var/www/html/wp-config.php
           service httpd restart
 
-  8_configure_private_server:
-    needs: 7_configure_EC2_instance
+  H_configure_private_server:
+    needs: G_configure_EC2_instance
     runs-on: ubuntu-latest
     steps:
     - name: SSH into Private Server and Configure it
