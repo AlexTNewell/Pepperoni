@@ -4,131 +4,143 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup:
+  1_setup:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: 1a Checkout repository
       uses: actions/checkout@v3  
-              
-    - name: Set up Terraform
+    
+    - name: 1b Set up Terraform
       uses: hashicorp/setup-terraform@v1 
 
-    - name: Build and Deploy
-      runs-on: ubuntu-latest
-      steps:
-        - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v1
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-1
+  2_build: 
+    needs: 1_setup
+    runs-on: ubuntu-latest
+     
+    steps:
+    - name: 2a Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
 
-        - name: Terraform Init
-          run: terraform init
-          working-directory: Pepperoni
+    - name: 2b Terraform Init
+      run: terraform init
+      working-directory: Pepperoni
 
-        - name: Terraform Format
-          run: terraform fmt
-          working-directory: Pepperoni
+    - name: Terraform Format
+      run: terraform fmt
+      working-directory: Pepperoni
 
-        - name: Terraform Validate
-          run: terraform validate
-          working-directory: Pepperoni
+    - name: 2c Terraform Validate
+      run: terraform validate
+      working-directory: Pepperoni
 
-        - name: Terraform Plan
-          run: terraform plan
-          working-directory: Pepperoni
+    - name: 2d Terraform Plan
+      run: terraform plan
+      working-directory: Pepperoni
 
-        - name: Terraform Apply
-          run: terraform apply -auto-approve
-          working-directory: Pepperoni
+    - name: 2e Terraform Apply
+      run: terraform apply -auto-approve
+      working-directory: Pepperoni
 
-        - name: Set Setup Server Instance ID and Public IP
-          run: |
-            INSTANCE_ID=$(terraform output -raw instance_id)
-            echo "Instance ID: $INSTANCE_ID"
-            echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+  3_setup_server_config:
+    needs: 2_build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 3a Assign Setup Server Instance ID and Public IP
+      run: |
+        INSTANCE_ID=$(terraform output -raw instance_id)
+        echo "Instance ID: $INSTANCE_ID"
+        echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
-            PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
-            echo "Instance Public IP: $PUBLIC_IP"
-            echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+        PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
+        echo "Instance Public IP: $PUBLIC_IP"
+        echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
 
-  install-gh-cli:
+  4_install_gh_cli:
+    needs: 3_setup_server_config
     runs-on: ubuntu-latest
     steps:
-      - name: Install GitHub CLI
-        run: |
-          # Install GitHub CLI on the remote server
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list
-          sudo apt update
-          sudo apt install gh
+    - name: Install GitHub CLI
+      run: |
+        # Install GitHub CLI on the remote server
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list
+        sudo apt update
+        sudo apt install gh
 
-  authenticate-gh-cli:
+  5_install_gh_cli:
+    needs: 4_install_gh_cli
     runs-on: ubuntu-latest
     steps:
-      - name: Authenticate GitHub CLI
-        run: |
-          gh auth login --with-token <<< ${{ secrets.GH_TOKEN }}
+    - name: Authenticate GitHub CLI
+      run: |
+        gh auth login --with-token <<< ${{ secrets.GH_TOKEN }}
 
-  save-private-key:
+  6_save_private_key:
+    needs: 5_install_gh_cli
     runs-on: ubuntu-latest
     steps:
-      - name: Save Private Key to GitHub Actions secrets
-        run: ./save_private_key.sh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+    - name: Save Private Key to GitHub Actions secrets
+      run: ./save_private_key.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-  configure-ec2-instance:
+  7_configure_EC2_instance:
+    needs: 6_save_private_key
     runs-on: ubuntu-latest
     steps:
-      - name: Use Public IP to SSH into Setup Server and Configure EC2 Instance
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.PUBLIC_IP }}
-          username: ec2-user
-          key: ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}  # Replace with the name of your SSH private key secret
-          script: |
-            sudo su
-            yum update -y
-            mkdir -p /var/www/html
-            sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-03c9b3354880b36a6.efs.us-east-1.amazonaws.com:/ /var/www/html
-            sudo yum install -y httpd httpd-tools mod_ssl
-            sudo systemctl enable httpd
-            sudo systemctl start httpd
-            sudo amazon-linux-extras enable php7.4
-            sudo yum clean metadata
-            sudo yum install php php-common php-pear -y
-            sudo yum install php-{cgi,curl,mbstring,gd,mysqlnd,gettext,json,xml,fpm,intl,zip} -y
-            sudo rpm -Uvh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
-            sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
-            sudo yum install mysql-community-server -y
-            sudo systemctl enable mysqld
-            sudo systemctl start mysqld
-            sudo usermod -a -G apache ec2-user
-            sudo chown -R ec2-user:apache /var/www
-            sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
-            sudo find /var/www -type f -exec sudo chmod 0664 {} \;
-            chown apache:apache -R /var/www/html
-            wget https://wordpress.org/latest.tar.gz
-            tar -xzf latest.tar.gz
-            cp -r wordpress/* /var/www/html/
-            cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
-            # Edit the wp-config.php file here
-            # nano /var/www/html/wp-config.php
-            service httpd restart
+    - name: Use Public IP to SSH into Setup Server and Configure EC2 Instance
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ env.PUBLIC_IP }}
+        username: ec2-user
+        key: ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}  # Replace with the name of your SSH private key secret
+        script: |
+          sudo su
+          yum update -y
+          mkdir -p /var/www/html
+          sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-03c9b3354880b36a6.efs.us-east-1.amazonaws.com:/ /var/www/html
+          sudo yum install -y httpd httpd-tools mod_ssl
+          sudo systemctl enable httpd
+          sudo systemctl start httpd
+          sudo amazon-linux-extras enable php7.4
+          sudo yum clean metadata
+          sudo yum install php php-common php-pear -y
+          sudo yum install php-{cgi,curl,mbstring,gd,mysqlnd,gettext,json,xml,fpm,intl,zip} -y
+          sudo rpm -Uvh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+          sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+          sudo yum install mysql-community-server -y
+          sudo systemctl enable mysqld
+          sudo systemctl start mysqld
+          sudo usermod -a -G apache ec2-user
+          sudo chown -R ec2-user:apache /var/www
+          sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
+          sudo find /var/www -type f -exec sudo chmod 0664 {} \;
+          chown apache:apache -R /var/www/html
+          wget https://wordpress.org/latest.tar.gz
+          tar -xzf latest.tar.gz
+          cp -r wordpress/* /var/www/html/
+          cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+          # Edit the wp-config.php file here
+          # nano /var/www/html/wp-config.php
+          service httpd restart
 
-  configure-private-server:
+  8_configure_private_server:
+    needs: 7_configure_EC2_instance
     runs-on: ubuntu-latest
     steps:
-      - name: SSH into Private Server and Configure it
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.BASTION_HOST_PUBLIC_IP }}
-          username: ec2-user
-          key: ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}  # Replace with the name of your SSH private key secret
-          script: |
-            ssh-add - <<< "${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}"
-            ssh -A -i ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }} ec2-user@${{ env.BASTION_HOST_PUBLIC_IP }}
-            ssh -i ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }} ec2-user@${{ env.BASTION_HOST_PRIVATE_IP }}
+    - name: SSH into Private Server and Configure it
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ env.BASTION_HOST_PUBLIC_IP }}
+        username: ec2-user
+        key: ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}  # Replace with the name of your SSH private key secret
+        script: |
+          ssh-add - <<< "${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}"
+          ssh -A -i ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }} ec2-user@${{ env.BASTION_HOST_PUBLIC_IP }}
+          ssh -i ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }} ec2-user@${{ env.BASTION_HOST_PRIVATE_IP }}
