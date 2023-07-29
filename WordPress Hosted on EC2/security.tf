@@ -82,6 +82,8 @@ resource "aws_security_group" "db_sg" {
   description = "Database Security Group"
   vpc_id      = aws_vpc.main.id
 
+}
+
 resource "aws_security_group_rule" "db_sg_inbound_rule_1" {
   type              = "ingress"
   from_port         = 3306
