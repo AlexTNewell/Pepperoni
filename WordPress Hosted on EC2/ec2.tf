@@ -1,5 +1,5 @@
 data "aws_efs_file_system" "example" {
-  file_system_id = aws_efs_file_system.example.id
+  file_system_id = aws_efs_file_system.dev_efs.id
 }
 
 ##################### Key Pair #####################
