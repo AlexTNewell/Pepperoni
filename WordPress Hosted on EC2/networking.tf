@@ -64,26 +64,18 @@ resource "aws_route_table" "main_route_table" {
 
 resource "aws_main_route_table_association" "a" {
   vpc_id = aws_vpc.dev_vpc.id
-  subnet_id      = aws_subnet.pri_app_az_1.id
-  route_table_id = aws_route_table.main_route_table.id
 }
 
 resource "aws_main_route_table_association" "b" {
   vpc_id = aws_vpc.dev_vpc.id
-  subnet_id      = aws_subnet.pri_app_az_2.id
-  route_table_id = aws_route_table.main_route_table.id
 }
 
 resource "aws_main_route_table_association" "c" {
   vpc_id = aws_vpc.dev_vpc.id
-  subnet_id      = aws_subnet.pri_db_az_1.id
-  route_table_id = aws_route_table.main_route_table.id
 }
 
 resource "aws_main_route_table_association" "d" {
   vpc_id = aws_vpc.dev_vpc.id
-  subnet_id      = aws_subnet.pri_db_az_2.id
-  route_table_id = aws_route_table.main_route_table.id
 }
 
 ##################### Internet Route Table #####################
