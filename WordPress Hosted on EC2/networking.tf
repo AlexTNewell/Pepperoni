@@ -159,22 +159,22 @@ resource "aws_route_table" "private_route_table_az2" {
 
 ##################### Private Route Table Associations #####################
 
-resource "aws_route_table_association" "a" {
+resource "aws_route_table_association" "az1-app" {
   subnet_id      = aws_subnet.pri_app_az_1.id
   route_table_id = aws_route_table.private_route_table_az1.id
 }
 
-resource "aws_route_table_association" "a" {
+resource "aws_route_table_association" "az1-db" {
   subnet_id      = aws_subnet.pri_db_az_1.id
   route_table_id = aws_route_table.private_route_table_az1.id
 }
 
-resource "aws_route_table_association" "b" {
+resource "aws_route_table_association" "az2-app" {
   subnet_id      = aws_subnet.pri_app_az_2.id
   route_table_id = aws_route_table.private_route_table_az2.id
 }
 
-resource "aws_route_table_association" "b" {
+resource "aws_route_table_association" "az2-db" {
   subnet_id      = aws_subnet.pri_db_az_2.id
   route_table_id = aws_route_table.private_route_table_az2.id
 }
