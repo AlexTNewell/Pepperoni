@@ -99,6 +99,8 @@ resource "aws_security_group" "efs_sg" {
   description = "EFS Security Group"
   vpc_id      = aws_vpc.main.id
 
+}
+
 resource "aws_security_group_rule" "efs_sg_inbound_rule_1" {
   type              = "ingress"
   from_port         = 2049
