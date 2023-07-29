@@ -45,7 +45,7 @@ resource "aws_autoscaling_group" "dev_asg" {
   vpc_zone_identifier = [aws_subnet.pri_app_az_1.id, aws_subnet.pri_app_az_2.id]
   target_group_arns = aws_lb.app_alb.arn
   health_check_type = "ELB"
-  enabled_metrics = "GroupTotalInstances"
+  enabled_metrics = ["GroupTotalInstances"]
   launch_template {
     id      = aws_launch_template.dev_launch_template.id
   }
