@@ -48,6 +48,8 @@ resource "aws_security_group" "webserver_sg" {
   description = "Webserver Security Group"
   vpc_id      = aws_vpc.main.id
 
+}
+
 resource "aws_security_group_rule" "webserver_sg_inbound_rule_1" {
   type              = "ingress"
   from_port         = 80
