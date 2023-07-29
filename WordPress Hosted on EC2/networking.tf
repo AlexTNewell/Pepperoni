@@ -64,18 +64,22 @@ resource "aws_route_table" "main_route_table" {
 
 resource "aws_main_route_table_association" "a" {
   vpc_id = aws_vpc.dev_vpc.id
+  cidr_block = "10.0.2.0/24"
 }
 
 resource "aws_main_route_table_association" "b" {
   vpc_id = aws_vpc.dev_vpc.id
+  cidr_block = "10.0.4.0/24"
 }
 
 resource "aws_main_route_table_association" "c" {
   vpc_id = aws_vpc.dev_vpc.id
+  cidr_block = "10.0.3.0/24"
 }
 
 resource "aws_main_route_table_association" "d" {
   vpc_id = aws_vpc.dev_vpc.id
+  cidr_block = "10.0.5.0/24"
 }
 
 ##################### Internet Route Table #####################
