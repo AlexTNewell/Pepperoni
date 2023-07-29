@@ -85,7 +85,7 @@ resource "aws_security_group_rule" "webserver_sg_inbound_rule_3" {
 resource "aws_security_group" "db_sg" {
   name        = "db_sg"
   description = "Database Security Group"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = aws_vpc.dev_vpc.id
 
 }
 
@@ -104,7 +104,7 @@ resource "aws_security_group_rule" "db_sg_inbound_rule_1" {
 resource "aws_security_group" "efs_sg" {
   name        = "efs_sg"
   description = "EFS Security Group"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = aws_vpc.dev_vpc.id
 
 }
 
