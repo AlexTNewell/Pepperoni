@@ -49,7 +49,7 @@ resource "aws_security_group_rule" "ssh_sg_inbound_rule_1" {
 resource "aws_security_group" "webserver_sg" {
   name        = "webserver_sg"
   description = "Webserver Security Group"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = aws_vpc.dev_vpc.id
 
 }
 
