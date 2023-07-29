@@ -40,7 +40,7 @@ resource "aws_security_group_rule" "ssh_sg_inbound_rule_1" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = "0.0.0.0/0"
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.ssh_sg.id
 }
 
