@@ -58,6 +58,7 @@ resource "aws_subnet" "pri_db_az_2" {
 
 resource "aws_route_table" "main_route_table" {
   vpc_id = aws_vpc.dev_vpc.id
+}
 
 ##################### Main Route Table Associations #####################
 
