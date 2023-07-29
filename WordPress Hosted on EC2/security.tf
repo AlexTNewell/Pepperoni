@@ -5,6 +5,7 @@ resource "aws_security_group" "alb_sg" {
   name        = "alb_sg"
   description = "ALB Security Group"
   vpc_id      = aws_vpc.dev_vpc.id
+}
 
 resource "aws_security_group_rule" "alb_http_sg_inbound_rule_1" {
   type              = "ingress"
@@ -31,6 +32,8 @@ resource "aws_security_group" "ssh_sg" {
   name        = "ssh_sg"
   description = "SSH Security Group"
   vpc_id      = aws_vpc.dev_vpc.id
+
+}
 
 resource "aws_security_group_rule" "ssh_sg_inbound_rule_1" {
   type              = "ingress"
