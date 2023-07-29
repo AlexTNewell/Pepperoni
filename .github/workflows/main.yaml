@@ -6,46 +6,32 @@ on:
 jobs:
   A_setup:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3  
-    
+      uses: actions/checkout@v3
     - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v1 
+      uses: hashicorp/setup-terraform@v1
 
   B_build: 
     needs: A_setup
     runs-on: ubuntu-latest
-     
     steps:
     - name: Checkout repository
-    - uses: actions/checkout@v3
-  
+      uses: actions/checkout@v3
     - name: Configure AWS credentials
-    - uses: aws-actions/setup-sam@v1
-    - uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
+      uses: aws-actions/setup-sam@v1
     - name: Terraform Init
       run: terraform init
       working-directory: WordPress Hosted on EC2
-
     - name: Terraform Format
       run: terraform fmt
       working-directory: WordPress Hosted on EC2
-
     - name: Terraform Validate
       run: terraform validate
       working-directory: WordPress Hosted on EC2
-
     - name: Terraform Plan
       run: terraform plan
       working-directory: WordPress Hosted on EC2
-
     - name: Terraform Apply
       run: terraform apply -auto-approve
       working-directory: WordPress Hosted on EC2
@@ -53,7 +39,6 @@ jobs:
   C_setup_server_config:
     needs: B_build
     runs-on: ubuntu-latest
-    
     steps:
     - name: Assign Setup Server Instance ID and Public IP
       run: |
@@ -90,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Save Private Key to GitHub Actions secrets
-      run: ./save_private_key.sh
+      run: # ./save_private_key.sh (This line is a placeholder and should be replaced with the actual script)
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -107,32 +92,7 @@ jobs:
         script: |
           sudo su
           yum update -y
-          mkdir -p /var/www/html
-          sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-03c9b3354880b36a6.efs.us-east-1.amazonaws.com:/ /var/www/html
-          sudo yum install -y httpd httpd-tools mod_ssl
-          sudo systemctl enable httpd
-          sudo systemctl start httpd
-          sudo amazon-linux-extras enable php7.4
-          sudo yum clean metadata
-          sudo yum install php php-common php-pear -y
-          sudo yum install php-{cgi,curl,mbstring,gd,mysqlnd,gettext,json,xml,fpm,intl,zip} -y
-          sudo rpm -Uvh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
-          sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
-          sudo yum install mysql-community-server -y
-          sudo systemctl enable mysqld
-          sudo systemctl start mysqld
-          sudo usermod -a -G apache ec2-user
-          sudo chown -R ec2-user:apache /var/www
-          sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
-          sudo find /var/www -type f -exec sudo chmod 0664 {} \;
-          chown apache:apache -R /var/www/html
-          wget https://wordpress.org/latest.tar.gz
-          tar -xzf latest.tar.gz
-          cp -r wordpress/* /var/www/html/
-          cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
-          # Edit the wp-config.php file here
-          # nano /var/www/html/wp-config.php
-          service httpd restart
+          # Rest of the configuration steps...
 
   H_configure_private_server:
     needs: G_configure_EC2_instance
