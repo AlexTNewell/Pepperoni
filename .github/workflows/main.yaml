@@ -53,6 +53,10 @@ jobs:
         TF_VAR_db_password: ${{ secrets.DB_PASSWORD_SECRET }}
       run: terraform apply -auto-approve -var "db_password=${{ secrets.DB_PASSWORD }}"
       working-directory: WordPress Hosted on EC2
+        
+    - name: Terraform Refresh
+      run: terraform refresh
+      working-directory: WordPress Hosted on EC2
 
   C_setup_server_config:
     needs: B_build
