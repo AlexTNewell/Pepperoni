@@ -12,3 +12,10 @@ variable "secondary_region" {
   default = "us-east-1"
 }
 
+##################### Secrets #####################
+
+variable "db_password" {
+  type        = string
+  default = ""
+  description = "Password for the database"
+}
