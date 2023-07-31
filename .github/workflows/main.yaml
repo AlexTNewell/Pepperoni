@@ -110,13 +110,11 @@ jobs:
 
   F_save_private_key:
     needs: E_install_gh_cli
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest      
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3  
-      
     - name: Save Private Key to GitHub Actions secrets
       run: ./save_private_key.sh
+      working-directory: WordPress Hosted on EC2
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
