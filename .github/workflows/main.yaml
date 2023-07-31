@@ -114,6 +114,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:    
       - name: Save Private Key to GitHub Actions secrets
+        env:
+          SETUP_SERVER_KEY: ${{ needs.B_build.outputs.setup_server_private_key }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           SETUP_SERVER_PRIVATE_KEY=$(terraform output -raw setup_server_private_key)
           echo "SETUP_SERVER_PRIVATE_KEY=${SETUP_SERVER_PRIVATE_KEY}" >> $GITHUB_ENV
