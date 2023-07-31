@@ -130,7 +130,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           echo "SETUP_SERVER_KEY=${SETUP_SERVER_KEY}" >> $GITHUB_ENV
-          Pepperoni/save_private_key.sh
+          save_private_key.sh
         working-directory: Pepperoni
 
 
