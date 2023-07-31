@@ -114,7 +114,7 @@ jobs:
     steps:
     - name: Save Private Key to GitHub Actions secrets
       run: ./save_private_key.sh
-      working-directory: WordPress Hosted on EC2
+      working-directory: Pepperoni
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
