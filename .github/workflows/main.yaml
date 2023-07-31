@@ -113,25 +113,33 @@ jobs:
     needs: E_install_gh_cli
     runs-on: ubuntu-latest
     steps:    
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
       - name: Save Private Key to GitHub Actions secrets
-        env:
-          SETUP_SERVER_KEY: ${{ needs.B_build.outputs.setup_server_private_key }}
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          echo "SETUP_SERVER_KEY=${SETUP_SERVER_KEY}" >> $GITHUB_ENV
-          chmod +x save_private_key.sh
-          bash ${{ github.workspace }}/WordPress Hosted on EC2/save_private_key.sh
+          SETUP_SERVER_PRIVATE_KEY=$(terraform output -raw setup_server_private_key)
+          echo "SETUP_SERVER_PRIVATE_KEY=${SETUP_SERVER_PRIVATE_KEY}" >> $GITHUB_ENV
 
+      - name: Set the GitHub repository and secret name
+        run: |
+          REPO="/Pepperoni"
+          SECRET_NAME="PEPPERONI_SETUP_SERVER_TF_KEY"
+          echo "REPO=$REPO" >> $GITHUB_ENV
+          echo "SECRET_NAME=$SECRET_NAME" >> $GITHUB_ENV
+
+      - name: Check if the secret already exists
+        run: |
+          gh secret list $REPO | grep $SECRET_NAME || exit 0
+          
+      - name: Update or create the secret
+        run: |
+          if [ $? -eq 0 ]; then
+            # Update the existing secret
+            echo "Updating the existing secret..."
+            gh secret set $SECRET_NAME -b "${{ env.SETUP_SERVER_PRIVATE_KEY }}" $REPO
+          else
+            # Create a new secret
+            echo "Creating a new secret..."
+            gh secret add $SECRET_NAME -b "${{ env.SETUP_SERVER_PRIVATE_KEY }}" $REPO
+          fi
 
   G_configure_EC2_instance:
     needs: F_save_private_key
