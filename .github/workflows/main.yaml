@@ -119,6 +119,8 @@ jobs:
           echo "SETUP_SERVER_PRIVATE_KEY=${SETUP_SERVER_PRIVATE_KEY}" >> $GITHUB_ENV
 
       - name: Set the GitHub repository and secret name
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           REPO="/Pepperoni"
           SECRET_NAME="PEPPERONI_SETUP_SERVER_TF_KEY"
@@ -126,10 +128,14 @@ jobs:
           echo "SECRET_NAME=$SECRET_NAME" >> $GITHUB_ENV
 
       - name: Check if the secret already exists
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           gh secret list $REPO | grep $SECRET_NAME || exit 0
           
       - name: Update or create the secret
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           if [ $? -eq 0 ]; then
             # Update the existing secret
