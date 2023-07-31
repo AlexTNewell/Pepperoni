@@ -1,6 +1,5 @@
 name: Pepperoni Workflow
 on:
-  push:
   workflow_dispatch:
 
 jobs:
@@ -130,7 +129,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           echo "SETUP_SERVER_KEY=${SETUP_SERVER_KEY}" >> $GITHUB_ENV
-          save_private_key.sh
+          chmod +x save_private_key.sh
+          ./save_private_key.sh
         working-directory: Pepperoni
 
 
