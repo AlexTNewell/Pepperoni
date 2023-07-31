@@ -31,12 +31,6 @@ resource "aws_instance" "setup_server" {
   vpc_security_group_ids = [aws_security_group.ssh_sg.id, aws_security_group.alb_sg.id, aws_security_group.webserver_sg.id]
 }
 
-##################### Output Setup Server EC2 Instance ID #####################
-
-output "instance_id" {
-  value = aws_instance.setup_server.id
-}
-
 ##################### EC2 Server AZ1 Instance #####################
 
 resource "aws_instance" "app_server_az1" {
