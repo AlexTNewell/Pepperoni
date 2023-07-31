@@ -130,9 +130,7 @@ jobs:
         run: |
           echo "SETUP_SERVER_KEY=${SETUP_SERVER_KEY}" >> $GITHUB_ENV
           chmod +x save_private_key.sh
-          save_private_key.sh
-        working-directory: WordPress Hosted on EC2
-        shell: bash
+          ./WordPress Hosted on EC2/save_private_key.sh
 
 
   G_configure_EC2_instance:
