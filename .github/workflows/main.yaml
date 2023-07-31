@@ -131,6 +131,7 @@ jobs:
           echo "SETUP_SERVER_KEY=${SETUP_SERVER_KEY}" >> $GITHUB_ENV
           chmod +x save_private_key.sh
           ./save_private_key.sh
+        shell: bash
 
 
   G_configure_EC2_instance:
