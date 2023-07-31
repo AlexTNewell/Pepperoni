@@ -41,7 +41,6 @@ jobs:
       run: terraform validate
       working-directory: WordPress Hosted on EC2
 
-
     - name: Terraform Plan
       env:
         TF_VAR_db_password: ${{ secrets.DB_PASSWORD_SECRET }}
@@ -66,8 +65,9 @@ jobs:
     
     steps:
     - name: Assign Setup Server Instance ID and Public IP
+      env:
+        INSTANCE_ID: ${{ needs.B_build.outputs.instance_id }}
       run: |
-        INSTANCE_ID=$(terraform output -raw instance_id)
         echo "Instance ID: $INSTANCE_ID"
         echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
