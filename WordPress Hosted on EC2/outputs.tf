@@ -5,10 +5,15 @@ output "public_ip" {
   sensitive = true
 }
 
-##################### Output Bastion Host Public IP #####################
+##################### Output Bastion Host IPs #####################
 
 output "bh_public_ip" {
   value = aws_instance.bastion_host.public_ip
+  sensitive = true
+}
+
+output "bh_private_ip" {
+  value = aws_instance.bastion_host.private_ip
   sensitive = true
 }
 
