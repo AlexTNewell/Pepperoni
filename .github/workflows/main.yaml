@@ -88,13 +88,6 @@ jobs:
         PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
         echo "Instance Public IP: $PUBLIC_IP"
         echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
-                    
-    - name: Save Private Key as a Secret
-      uses: actions/create-secret@v1
-      with:
-        name: PEPPERONI_SETUP_SERVER_TF_KEY
-        value: $(echo -n "${{ needs.B_build.outputs.setup_server_private_key }}" | base64)
-        repository: ${{ github.repository }}
 
   D_install_gh_cli:
     needs: C_setup_server_config
@@ -125,7 +118,7 @@ jobs:
       with:
         host: ${{ env.PUBLIC_IP }}
         username: ec2-user
-        key: $(echo -n "${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}" | base64 --decode)
+        key: ${{ needs.B_build.outputs.setup_server_private_key }}
         script: |
           sudo su
           yum update -y
