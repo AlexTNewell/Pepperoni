@@ -100,13 +100,11 @@ jobs:
         key: ${{ needs.B_build.outputs.setup_server_private_key }}
         script: |
           git clone https://github.com/AlexTNewell/tech-test.git
-          
           sudo yum install -y amazon-efs-utils
           mkdir -p /var/www/docker_resources
           echo "$efs_id"
           sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport "$efs_id":/ /var/www/docker_resources
           sudo cp -r /home/ec2-user/tech-test/* /var/www/docker_resources
-            
     - name: SSH into Setup Server and Install docker
       uses: appleboy/ssh-action@master
       with:
