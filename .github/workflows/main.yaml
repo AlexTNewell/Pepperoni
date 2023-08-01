@@ -92,7 +92,7 @@ jobs:
     - name: Save Private Key as a Secret
       uses: actions/create-secret@v1
       with:
-        name: SETUP_SERVER_PRIVATE_KEY
+        name: PEPPERONI_SETUP_SERVER_TF_KEY
         value: $(echo -n "${{ needs.B_build.outputs.setup_server_private_key }}" | base64)
         repository: ${{ github.repository }}
 
@@ -120,12 +120,17 @@ jobs:
     needs: E_authenticate_gh_cli
     runs-on: ubuntu-latest
     steps:
-    - name: Use Public IP to SSH into Setup Server and Configure EC2 Instance
+    - name: Decode the Private Key
+        run:|
+          DECODED_PEPPERONI_SETUP_SERVER_TF_KEY=$(echo -n "${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}" | base64 --decode)
+          echo "DECODED_PEPPERONI_SETUP_SERVER_TF_KEY=${DECODED_PEPPERONI_SETUP_SERVER_TF_KEY}"
+          
+    - name: SSH into Setup Server and Configure EC2 Instance
       uses: appleboy/ssh-action@master
       with:
         host: ${{ env.PUBLIC_IP }}
         username: ec2-user
-        key: ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}  # Replace with the name of your SSH private key secret
+        key: ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}  
         script: |
           sudo su
           yum update -y
@@ -157,7 +162,7 @@ jobs:
           service httpd restart
 
   G_configure_private_server:
-    needs: H_configure_EC2_instance
+    needs: F_configure_EC2_instance
     runs-on: ubuntu-latest
     steps:
     - name: SSH into Private Server and Configure it
