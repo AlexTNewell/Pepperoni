@@ -63,6 +63,7 @@ jobs:
         TF_VAR_db_password: ${{ secrets.DB_PASSWORD_SECRET }}
       run: |
         echo "public_ip=$(terraform output -raw public_ip)" >> $GITHUB_ENV
+        echo "bh_public_ip=$(terraform output -raw bh_public_ip)" >> $GITHUB_ENV
         echo "setup_server_private_key=$(terraform output -raw setup_server_private_key)" >> $GITHUB_ENV
       working-directory: WordPress Hosted on EC2
 
