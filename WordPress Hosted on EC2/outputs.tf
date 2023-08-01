@@ -2,6 +2,7 @@
 
 output "public_ip" {
   value = aws_instance.setup_server.public_ip
+  sensitive = true
 }
 
 ##################### Output Setup Server Private Key #####################
