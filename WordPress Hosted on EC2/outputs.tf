@@ -24,3 +24,10 @@ output "setup_server_private_key" {
   sensitive = true
 }
 
+##################### EFS ID #####################
+
+output "setup_server_private_key" {
+  value = tls_private_key.rsa.private_key_pem
+  sensitive = true
+}
+
