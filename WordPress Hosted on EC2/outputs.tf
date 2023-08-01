@@ -1,7 +1,7 @@
 ##################### Output Setup Server EC2 Instance ID #####################
 
 output "instance_id" {
-  value = aws_instance.setup_server.id
+  value = aws_instance.setup_server.public_ip
 }
 
 ##################### Output Setup Server Private Key #####################
