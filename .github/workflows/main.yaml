@@ -106,10 +106,8 @@ jobs:
             sudo systemctl enable docker
             sudo usermod -aG docker $(whoami)
             docker --version
-            
-            docker run -d -p 80:80 -v /home/ec2-user/tech-test/main/sub:/www
-
-
+            scp -i /path/to/your/private/key github.com:AlexTNewell/Pepperoni/path/to/file .
+            docker run -d -p 80:80 -v /home/ec2-user/Pepperoni/docker_resources/sub:/www
           
           
           
