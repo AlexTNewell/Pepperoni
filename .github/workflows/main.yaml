@@ -156,7 +156,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: SSH into Private Server and Configure it
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v0.5.0
       with:
         host: ${{ env.BASTION_HOST_PUBLIC_IP }}
         username: ec2-user
