@@ -120,17 +120,12 @@ jobs:
     needs: E_authenticate_gh_cli
     runs-on: ubuntu-latest
     steps:
-    - name: Decode the Private Key
-        run:|
-          DECODED_PEPPERONI_SETUP_SERVER_TF_KEY=$(echo -n "${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}" | base64 --decode)
-          echo "DECODED_PEPPERONI_SETUP_SERVER_TF_KEY=${DECODED_PEPPERONI_SETUP_SERVER_TF_KEY}"
-          
     - name: SSH into Setup Server and Configure EC2 Instance
       uses: appleboy/ssh-action@master
       with:
         host: ${{ env.PUBLIC_IP }}
         username: ec2-user
-        key: ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}  
+        key: $(echo -n "${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}" | base64 --decode)
         script: |
           sudo su
           yum update -y
