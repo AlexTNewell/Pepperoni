@@ -91,7 +91,7 @@ jobs:
     needs: D_authenticate_gh_cli
     runs-on: ubuntu-latest
     steps:
-    - name: SSH into Setup Server and Configure EC2 Instance
+    - name: SSH into Setup Server and Install docker
       uses: appleboy/ssh-action@master
       with:
         host: ${{ needs.B_build.outputs.public_ip }}
@@ -106,36 +106,22 @@ jobs:
             sudo systemctl enable docker
             sudo usermod -aG docker $(whoami)
             docker --version
-            scp -i /path/to/your/private/key github.com:AlexTNewell/Pepperoni/path/to/file .
-            docker run -d -p 80:80 -v /home/ec2-user/Pepperoni/docker_resources/sub:/www
-          
-          
-          
+    - name: SSH into Setup Server and Copy Upload Docker Resources Folder
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ needs.B_build.outputs.public_ip }}
+        username: ec2-user
+        key: ${{ needs.B_build.outputs.setup_server_private_key }}
+        script: |
+          sudo su
+          yum update -y
+          mkdir -p /var/www/html
           sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-03c9b3354880b36a6.efs.us-east-1.amazonaws.com:/ /var/www/html
-          sudo yum install -y httpd httpd-tools mod_ssl
-          sudo systemctl enable httpd
-          sudo systemctl start httpd
-          sudo amazon-linux-extras enable php7.4
-          sudo yum clean metadata
-          sudo yum install php php-common php-pear -y
-          sudo yum install php-{cgi,curl,mbstring,gd,mysqlnd,gettext,json,xml,fpm,intl,zip} -y
-          sudo rpm -Uvh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
-          sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
-          sudo yum install mysql-community-server -y
-          sudo systemctl enable mysqld
-          sudo systemctl start mysqld
-          sudo usermod -a -G apache ec2-user
-          sudo chown -R ec2-user:apache /var/www
-          sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
-          sudo find /var/www -type f -exec sudo chmod 0664 {} \;
-          chown apache:apache -R /var/www/html
-          wget https://wordpress.org/latest.tar.gz
-          tar -xzf latest.tar.gz
-          cp -r wordpress/* /var/www/html/
-          cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
-          # Edit the wp-config.php file here
-          # nano /var/www/html/wp-config.php
-          service httpd restart
+
+            git clone https://github.com/AlexTNewell/tech-test.git
+            cd main
+            docker build -t docker_image:latest --no-cache .
+            docker run -d -p 80:80 -v /home/ec2-user/Pepperoni/docker_resources/sub:/www docker_image:latest
 
   F_configure_private_server:
     needs: E_configure_EC2_instance
