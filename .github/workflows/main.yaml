@@ -113,13 +113,12 @@ jobs:
     needs: E_configure_EC2_instance
     runs-on: ubuntu-latest
     steps:
-    
     - name: SSH to Bastion Host and Forward Connection
-        run: |
-          ssh -o "StrictHostKeyChecking=no" -i "${{ needs.B_build.outputs.setup_server_private_key }}" -N -L 2222:private_ec2_private_ip:22 bastion_user@bastion_host_public_ip
-        env:
-          BASTION_SSH_KEY: ${{ secrets.BASTION_SSH_KEY }}  # Add the bastion host's private key as a secret
-          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}  # Add the private EC2 instance's private key as a secret
+      run:
+        ssh -o "StrictHostKeyChecking=no" -i "${{ needs.B_build.outputs.setup_server_private_key }}" -N -L 2222:"${{az1_private_subnet_ec2_private_ip}}":22 ec2_user@bastion_host_public_ip
+      env:
+        BASTION_SSH_KEY: ${{ secrets.BASTION_SSH_KEY }}  # Add the bastion host's private key as a secret
+        EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}  # Add the private EC2 instance's private key as a secret
     
     
     
