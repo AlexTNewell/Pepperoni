@@ -92,10 +92,25 @@ jobs:
     needs: D_authenticate_gh_cli
     runs-on: ubuntu-latest
     steps:
-    - name: SSH into Setup Server and Install docker
+    - name: SSH into Setup Server, Mount EFS and Upload Docker Resources Folder
       uses: appleboy/ssh-action@master
       with:
         host: ${{ needs.B_build.outputs.public_ip }}
+        username: ec2-user
+        key: ${{ needs.B_build.outputs.setup_server_private_key }}
+        script: |
+          git clone https://github.com/AlexTNewell/tech-test.git
+          
+          sudo yum install -y amazon-efs-utils
+          mkdir -p /var/www/docker_resources
+          echo "$efs_id"
+          sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport "$efs_id":/ /var/www/docker_resources
+          sudo cp -r /home/ec2-user/tech-test/* /var/www/docker_resources
+            
+    - name: SSH into Setup Server and Install docker
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ needs.B_build.outputs.???? }}
         username: ec2-user
         key: ${{ needs.B_build.outputs.setup_server_private_key }}
         script: |
@@ -107,23 +122,17 @@ jobs:
             sudo systemctl enable docker
             sudo usermod -aG docker $(whoami)
             docker --version
-    - name: SSH into Setup Server and Copy Upload Docker Resources Folder
+    - name: SSH into Setup Server, Build Docker Image and Run Container
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ needs.B_build.outputs.public_ip }}
+        host: ${{ needs.B_build.outputs.????? }}
         username: ec2-user
         key: ${{ needs.B_build.outputs.setup_server_private_key }}
         script: |
-          sudo yum install -y amazon-efs-utils
-          mkdir -p /var/www/html
-          echo "$efs_id"
-          sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport "$efs_id":/ /var/www/html
-
-            git clone https://github.com/AlexTNewell/tech-test.git
-            cd main
+            cd tech-test
             docker build -t docker_image:latest --no-cache .
             docker run -d -p 80:80 -v /home/ec2-user/Pepperoni/docker_resources/sub:/www docker_image:latest
-
+            
   F_configure_private_server:
     needs: E_configure_EC2_instance
     runs-on: ubuntu-latest
