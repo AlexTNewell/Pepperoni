@@ -88,6 +88,13 @@ jobs:
         PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
         echo "Instance Public IP: $PUBLIC_IP"
         echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+                    
+    - name: Save Private Key as a Secret
+      uses: actions/create-secret@v1
+      with:
+        name: SETUP_SERVER_PRIVATE_KEY
+        value: $(echo -n "${{ needs.B_build.outputs.setup_server_private_key }}" | base64)
+        repository: ${{ github.repository }}
 
   D_install_gh_cli:
     needs: C_setup_server_config
@@ -101,7 +108,7 @@ jobs:
         sudo apt update
         sudo apt install gh
 
-  E_install_gh_cli:
+  E_authenticate_gh_cli:
     needs: D_install_gh_cli
     runs-on: ubuntu-latest
     steps:
@@ -109,57 +116,8 @@ jobs:
       run: |
         gh auth login --with-token <<< ${{ secrets.GH_TOKEN }}
 
-  F_save_private_key:
-    needs: E_install_gh_cli
-    runs-on: ubuntu-latest
-    steps:    
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-        if: runner.os == 'Linux' 
-
-      - name: Install jq
-        run: brew install jq
-        if: runner.os == 'macOS' 
-
-      - name: Save Private Key to GitHub Actions secrets
-        env:
-          SETUP_SERVER_KEY: ${{ needs.B_build.outputs.setup_server_private_key }}
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          SETUP_SERVER_PRIVATE_KEY=$(SETUP_SERVER_PRIVATE_KEY=$(terraform output -json setup_server_private_key | jq -r '.value' 2> error.log)
-          echo "SETUP_SERVER_PRIVATE_KEY=${SETUP_SERVER_PRIVATE_KEY}" >> $GITHUB_ENV
-
-      - name: Set the GitHub repository and secret name
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          REPO="/Pepperoni"
-          SECRET_NAME="PEPPERONI_SETUP_SERVER_TF_KEY"
-          echo "REPO=$REPO" >> $GITHUB_ENV
-          echo "SECRET_NAME=$SECRET_NAME" >> $GITHUB_ENV
-
-      - name: Check if the secret already exists
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          gh secret list $REPO | grep $SECRET_NAME || exit 0
-          
-      - name: Update or create the secret
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          if [ $? -eq 0 ]; then
-            # Update the existing secret
-            echo "Updating the existing secret..."
-            gh secret set $SECRET_NAME -b "${{ env.SETUP_SERVER_PRIVATE_KEY }}" $REPO
-          else
-            # Create a new secret
-            echo "Creating a new secret..."
-            gh secret add $SECRET_NAME -b "${{ env.SETUP_SERVER_PRIVATE_KEY }}" $REPO
-          fi
-
-  G_configure_EC2_instance:
-    needs: F_save_private_key
+  F_configure_EC2_instance:
+    needs: E_authenticate_gh_cli
     runs-on: ubuntu-latest
     steps:
     - name: Use Public IP to SSH into Setup Server and Configure EC2 Instance
@@ -198,8 +156,8 @@ jobs:
           # nano /var/www/html/wp-config.php
           service httpd restart
 
-  H_configure_private_server:
-    needs: G_configure_EC2_instance
+  G_configure_private_server:
+    needs: H_configure_EC2_instance
     runs-on: ubuntu-latest
     steps:
     - name: SSH into Private Server and Configure it
