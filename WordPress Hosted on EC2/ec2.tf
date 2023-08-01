@@ -46,23 +46,16 @@ resource "aws_instance" "app_server_az1" {
 
   user_data = <<-EOT
 #!/bin/bash
+sudo su
 yum update -y
-sudo yum install -y httpd httpd-tools mod_ssl
-sudo systemctl enable httpd 
-sudo systemctl start httpd
-sudo amazon-linux-extras enable php7.4
-sudo yum clean metadata
-sudo yum install php php-common php-pear -y
-sudo yum install php-{cgi,curl,mbstring,gd,mysqlnd,gettext,json,xml,fpm,intl,zip} -y
-sudo rpm -Uvh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
-sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
-sudo yum install mysql-community-server -y
-sudo systemctl enable mysqld
-sudo systemctl start mysqld
-echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/html nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" >> /etc/fstab
+sudo apt update
+sudo apt install -y docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $(whoami)
+docker --version
+echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" >> /etc/fstab
 mount -a
-chown apache:apache -R /var/www/html
-sudo service httpd restart
 EOT
 }
 
@@ -81,23 +74,16 @@ resource "aws_instance" "app_server_az2" {
   }
   user_data = <<-EOT
 #!/bin/bash
+sudo su
 yum update -y
-sudo yum install -y httpd httpd-tools mod_ssl
-sudo systemctl enable httpd 
-sudo systemctl start httpd
-sudo amazon-linux-extras enable php7.4
-sudo yum clean metadata
-sudo yum install php php-common php-pear -y
-sudo yum install php-{cgi,curl,mbstring,gd,mysqlnd,gettext,json,xml,fpm,intl,zip} -y
-sudo rpm -Uvh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
-sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
-sudo yum install mysql-community-server -y
-sudo systemctl enable mysqld
-sudo systemctl start mysqld
-echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/html nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" >> /etc/fstab
+sudo apt update
+sudo apt install -y docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $(whoami)
+docker --version
+echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" >> /etc/fstab
 mount -a
-chown apache:apache -R /var/www/html
-sudo service httpd restart
 EOT
 }
 
