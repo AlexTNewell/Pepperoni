@@ -119,7 +119,7 @@ jobs:
         echo "${{ needs.B_build.outputs.setup_server_private_key }}"
       
     - name: SSH into Setup Server and Configure EC2 Instance
-      uses: appleboy/ssh-action@v0.5.0
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ needs.C_setup_server_config.outputs.PUBLIC_IP }}
         username: ec2-user
@@ -159,7 +159,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: SSH into Private Server and Configure it
-      uses: appleboy/ssh-action@v0.5.0
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ env.BASTION_HOST_PUBLIC_IP }}
         username: ec2-user
