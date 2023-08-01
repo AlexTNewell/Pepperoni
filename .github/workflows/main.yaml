@@ -135,7 +135,7 @@ jobs:
       with:
         host: ${{ env.BASTION_HOST_PUBLIC_IP }}
         username: ec2-user
-        key: ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}  # Replace with the name of your SSH private key secret
+        key: ${{ needs.B_build.outputs.setup_server_private_key }}
         script: |
           ssh-add - <<< "${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}"
           ssh -A -i ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }} ec2-user@${{ env.BASTION_HOST_PUBLIC_IP }}
