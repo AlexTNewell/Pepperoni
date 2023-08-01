@@ -66,6 +66,9 @@ jobs:
         echo "bh_public_ip=$(terraform output -raw bh_public_ip)" >> $GITHUB_ENV
         echo "setup_server_private_key=$(terraform output -raw setup_server_private_key)" >> $GITHUB_ENV
         echo "efs_id=$(terraform output -raw efs_id)" >> $GITHUB_ENV
+        echo "az1_private_subnet_ec2_private_ip=$(terraform output -raw az1_private_subnet_ec2_private_ip)" >> $GITHUB_ENV
+        echo "az2_private_subnet_ec2_private_ip=$(terraform output -raw az2_private_subnet_ec2_private_ip)" >> $GITHUB_ENV
+        
       working-directory: WordPress Hosted on EC2
 
   C_install_gh_cli:
