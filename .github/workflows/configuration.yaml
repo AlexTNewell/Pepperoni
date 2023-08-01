@@ -1,0 +1,58 @@
+name: Configuration Workflow
+on:
+  workflow_dispatch:
+
+jobs:
+  A_install_gh_cli:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install GitHub CLI
+      run: |
+        # Install GitHub CLI on the remote server
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list
+        sudo apt update
+        sudo apt install gh
+
+  B_authenticate_gh_cli:
+    needs: A_install_gh_cli
+    runs-on: ubuntu-latest
+    steps:
+    - name: Authenticate GitHub CLI
+      run: |
+        gh auth login --with-token <<< ${{ secrets.GH_TOKEN }}
+
+  C_configure_EC2_instance:
+    needs: B_authenticate_gh_cli
+    runs-on: ubuntu-latest
+    steps:
+    - name: SSH into Setup Server, Mount EFS and Upload Docker Resources Folder
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SETUP_SERVER_PUBLIC_IP }}
+        username: ec2-user
+        key: ${{ secrets.SETUP_SERVER_PRIVATE_IP }}
+        script: |
+          git clone https://github.com/AlexTNewell/tech-test.git
+          sudo yum install -y amazon-efs-utils
+          mkdir -p /var/www/docker_resources
+          sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport "${{ secrets.EFS_ID }}":/ /var/www/docker_resources
+          sudo cp -r /home/ec2-user/tech-test/* /var/www/docker_resources
+
+  D_configure_private_server:
+    needs: C_configure_EC2_instance
+    runs-on: ubuntu-latest
+    steps:
+    - name: SSH into Private Server and Configure it
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.BASTION_HOST_PUBLIC_IP }}
+        username: ec2-user
+        key: ${{ secrets.SERVER_PRIVATE_KEY }}
+        script: |
+          ssh-add - <<< "${{ secrets.SERVER_PRIVATE_KEY }}"
+          ssh -A -i ${{ secrets.SERVER_PRIVATE_KEY }} ec2-user@${{ secrets.BASTION_HOST_PUBLIC_IP }}
+          ssh -i ${{ secrets.SERVER_PRIVATE_KEY }} ec2-user@${{ secrets.BASTION_HOST_PRIVATE_IP }}
+          cd /var/www/docker_resources
+          docker build -t nginx-docker-image:latest .
+          docker run -d -p 80:80 -v /var/www/docker_resources:/www nginx-docker-image:latest
