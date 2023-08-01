@@ -108,17 +108,3 @@ jobs:
           echo "${{ needs.B_build.outputs.efs_id }}"
           sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport "${{ needs.B_build.outputs.efs_id }}":/ /var/www/docker_resources
           sudo cp -r /home/ec2-user/tech-test/* /var/www/docker_resources
-            
-  F_configure_private_server_AZ1:
-    needs: E_configure_EC2_instance
-    runs-on: ubuntu-latest
-    steps:
-    - name: SSH to Bastion Host and Forward Connection
-      run:
-        ssh -o "StrictHostKeyChecking=no" -i "${{ needs.B_build.outputs.setup_server_private_key }}" -N -L 2222:"${{ needs.B_build.outputs.az1_private_subnet_ec2_private_ip }}":22 ec2_user@"${{ needs.B_build.outputs.bh_public_ip }}"
-  
-    - name: Build docker image and run container
-      run: |
-            cd /var/www/docker_resources
-            docker build -t docker_image:latest --no-cache .
-            docker run -d -p 80:80 -v /home/ec2-user/Pepperoni/docker_resources/sub:/www docker_image:latest
