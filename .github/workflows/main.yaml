@@ -117,29 +117,10 @@ jobs:
       run:
         ssh -o "StrictHostKeyChecking=no" -i "${{ needs.B_build.outputs.setup_server_private_key }}" -N -L 2222:"${{az1_private_subnet_ec2_private_ip}}":22 ec2_user@"${{bh_public_ip}}"
   
-    - name: SSH into Private Server and Configure it
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ needs.B_build.outputs.bh_public_ip }}
-        username: ec2-user
-        key: ${{ needs.B_build.outputs.setup_server_private_key }}
-        script: |
-          ssh-add - <<< "${{ needs.B_build.outputs.setup_server_private_key }}"
-          ssh -A -i ${{ needs.B_build.outputs.setup_server_private_key }} ec2-user@${{ needs.B_build.outputs.bh_public_ip }}
-          ssh -i ${{ needs.B_build.outputs.setup_server_private_key }} ec2-user@$${{ needs.B_build.outputs.bh_private_ip }}
-  
-  G_configure_private_server_AZ2: 
-    needs: F_configure_private_server_AZ1
-    runs-on: ubuntu-latest 
-          
-    - name: SSH into Setup Server, Build Docker Image and Run Container
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ needs.B_build.outputs.????? }}
-        username: ec2-user
-        key: ${{ needs.B_build.outputs.setup_server_private_key }}
-        script: |
-            cd tech-test
+    - name: Build docker image and run container
+      run: |
+            cd /var/www/docker_resources
             docker build -t docker_image:latest --no-cache .
             docker run -d -p 80:80 -v /home/ec2-user/Pepperoni/docker_resources/sub:/www docker_image:latest
+
 
