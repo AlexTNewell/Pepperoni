@@ -113,12 +113,20 @@ jobs:
     needs: E_install_gh_cli
     runs-on: ubuntu-latest
     steps:    
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+        if: runner.os == 'Linux' 
+
+      - name: Install jq
+        run: brew install jq
+        if: runner.os == 'macOS' 
+
       - name: Save Private Key to GitHub Actions secrets
         env:
           SETUP_SERVER_KEY: ${{ needs.B_build.outputs.setup_server_private_key }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          SETUP_SERVER_PRIVATE_KEY=$(SETUP_SERVER_PRIVATE_KEY=$(terraform output -raw setup_server_private_key 2>/dev/null)
+          SETUP_SERVER_PRIVATE_KEY=$(SETUP_SERVER_PRIVATE_KEY=$(terraform output -json setup_server_private_key | jq -r '.value')
           echo "SETUP_SERVER_PRIVATE_KEY=${SETUP_SERVER_PRIVATE_KEY}" >> $GITHUB_ENV
 
       - name: Set the GitHub repository and secret name
