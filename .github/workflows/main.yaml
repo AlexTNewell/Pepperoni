@@ -62,35 +62,12 @@ jobs:
       env:
         TF_VAR_db_password: ${{ secrets.DB_PASSWORD_SECRET }}
       run: |
-        terraform output -raw instance_id
+        terraform output -raw public_ip
         terraform output -raw setup_server_private_key
       working-directory: WordPress Hosted on EC2
 
-  C_setup_server_config:
+  C_install_gh_cli:
     needs: B_build
-    runs-on: ubuntu-latest
-    
-    steps:  
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
-    - name: Assign Setup Server Instance ID and Public IP
-      env:
-        INSTANCE_ID: ${{ needs.B_build.outputs.instance_id }}
-      run: |
-        echo "Instance ID: $INSTANCE_ID"
-        echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
-
-        PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
-        echo "Instance Public IP: $PUBLIC_IP"
-        echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
-
-  D_install_gh_cli:
-    needs: C_setup_server_config
     runs-on: ubuntu-latest
     steps:
     - name: Install GitHub CLI
@@ -101,33 +78,22 @@ jobs:
         sudo apt update
         sudo apt install gh
 
-  E_authenticate_gh_cli:
-    needs: D_install_gh_cli
+  D_authenticate_gh_cli:
+    needs: C_install_gh_cli
     runs-on: ubuntu-latest
     steps:
     - name: Authenticate GitHub CLI
       run: |
         gh auth login --with-token <<< ${{ secrets.GH_TOKEN }}
 
-  F_configure_EC2_instance:
-    needs: E_authenticate_gh_cli
+  E_configure_EC2_instance:
+    needs: D_authenticate_gh_cli
     runs-on: ubuntu-latest
     steps:
-    - name: Make Public IP & Private Key available
-      env:
-        PUBLIC_IP: ${{ needs.C_setup_server_config.outputs.PUBLIC_IP }}
-        setup_server_private_key: ${{ needs.B_build.outputs.setup_server_private_key }}
-      run: |
-        echo "${{ needs.C_setup_server_config.outputs.PUBLIC_IP }}"
-        echo "${{ needs.B_build.outputs.setup_server_private_key }}"
-      
     - name: SSH into Setup Server and Configure EC2 Instance
-      env:
-        PUBLIC_IP: ${{ needs.C_setup_server_config.outputs.PUBLIC_IP }}
-        setup_server_private_key: ${{ needs.B_build.outputs.setup_server_private_key }}
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ needs.C_setup_server_config.outputs.PUBLIC_IP }}
+        host: ${{ needs.B_build.outputs.public_ip }}
         username: ec2-user
         key: ${{ needs.B_build.outputs.setup_server_private_key }}
         script: |
@@ -174,3 +140,4 @@ jobs:
           ssh-add - <<< "${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}"
           ssh -A -i ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }} ec2-user@${{ env.BASTION_HOST_PUBLIC_IP }}
           ssh -i ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }} ec2-user@${{ env.BASTION_HOST_PRIVATE_IP }}
+
