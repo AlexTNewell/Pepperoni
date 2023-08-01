@@ -134,11 +134,11 @@ jobs:
     - name: SSH into Private Server and Configure it
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ env.BASTION_HOST_PUBLIC_IP }}
+        host: ${{ needs.B_build.outputs.bh_public_ip }}
         username: ec2-user
         key: ${{ needs.B_build.outputs.setup_server_private_key }}
         script: |
-          ssh-add - <<< "${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }}"
-          ssh -A -i ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }} ec2-user@${{ env.BASTION_HOST_PUBLIC_IP }}
-          ssh -i ${{ secrets.PEPPERONI_SETUP_SERVER_TF_KEY }} ec2-user@${{ env.BASTION_HOST_PRIVATE_IP }}
+          ssh-add - <<< "${{ needs.B_build.outputs.setup_server_private_key }}"
+          ssh -A -i ${{ needs.B_build.outputs.setup_server_private_key }} ec2-user@${{ needs.B_build.outputs.bh_public_ip }}
+          ssh -i ${{ needs.B_build.outputs.setup_server_private_key }} ec2-user@$${{ needs.B_build.outputs.bh_private_ip }}
 
