@@ -118,7 +118,7 @@ jobs:
           SETUP_SERVER_KEY: ${{ needs.B_build.outputs.setup_server_private_key }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          SETUP_SERVER_PRIVATE_KEY=$(terraform output -raw setup_server_private_key)
+          SETUP_SERVER_PRIVATE_KEY=$(SETUP_SERVER_PRIVATE_KEY=$(terraform output -raw setup_server_private_key 2>/dev/null)
           echo "SETUP_SERVER_PRIVATE_KEY=${SETUP_SERVER_PRIVATE_KEY}" >> $GITHUB_ENV
 
       - name: Set the GitHub repository and secret name
