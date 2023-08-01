@@ -114,11 +114,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Make Public IP & Private Key available
+      env:
+        PUBLIC_IP: ${{ needs.C_setup_server_config.outputs.PUBLIC_IP }}
+        setup_server_private_key: ${{ needs.B_build.outputs.setup_server_private_key }}
       run: |
         echo "${{ needs.C_setup_server_config.outputs.PUBLIC_IP }}"
         echo "${{ needs.B_build.outputs.setup_server_private_key }}"
       
     - name: SSH into Setup Server and Configure EC2 Instance
+      env:
+        PUBLIC_IP: ${{ needs.C_setup_server_config.outputs.PUBLIC_IP }}
+        setup_server_private_key: ${{ needs.B_build.outputs.setup_server_private_key }}
       uses: appleboy/ssh-action@master
       with:
         host: ${{ needs.C_setup_server_config.outputs.PUBLIC_IP }}
