@@ -8,7 +8,7 @@ output "public_ip" {
 ##################### Output Bastion Host Public IP #####################
 
 output "bh_public_ip" {
-  value = aws_instance.setup_server.public_ip
+  value = aws_instance.bastion_host.public_ip
   sensitive = true
 }
 
