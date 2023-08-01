@@ -26,8 +26,8 @@ output "setup_server_private_key" {
 
 ##################### EFS ID #####################
 
-output "setup_server_private_key" {
-  value = tls_private_key.rsa.private_key_pem
+output "efs_id" {
+  value = aws_efs_file_system.dev_efs.id
   sensitive = true
 }
 
