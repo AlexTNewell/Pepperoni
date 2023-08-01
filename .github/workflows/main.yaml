@@ -113,12 +113,15 @@ jobs:
     needs: E_authenticate_gh_cli
     runs-on: ubuntu-latest
     steps:
+    - name: Make Public IP & Private Key available
+      run: |
+        echo "${{ needs.C_setup_server_config.outputs.PUBLIC_IP }}"
+        echo "${{ needs.B_build.outputs.setup_server_private_key }}"
+      
     - name: SSH into Setup Server and Configure EC2 Instance
-      env:
-        PUBLIC_IP: $(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
       uses: appleboy/ssh-action@v0.5.0
       with:
-        host: ${{ env.PUBLIC_IP }}
+        host: ${{ needs.C_setup_server_config.outputs.PUBLIC_IP }}
         username: ec2-user
         key: ${{ needs.B_build.outputs.setup_server_private_key }}
         script: |
