@@ -114,7 +114,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: SSH into Setup Server and Configure EC2 Instance
-      uses: appleboy/ssh-action@master
+      env:
+        PUBLIC_IP: $(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
+      uses: appleboy/ssh-action@v0.5.0
       with:
         host: ${{ env.PUBLIC_IP }}
         username: ec2-user
