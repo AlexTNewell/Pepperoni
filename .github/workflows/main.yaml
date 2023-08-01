@@ -109,19 +109,14 @@ jobs:
           sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport "$efs_id":/ /var/www/docker_resources
           sudo cp -r /home/ec2-user/tech-test/* /var/www/docker_resources
             
-  F_configure_private_server:
+  F_configure_private_server_AZ1:
     needs: E_configure_EC2_instance
     runs-on: ubuntu-latest
     steps:
     - name: SSH to Bastion Host and Forward Connection
       run:
-        ssh -o "StrictHostKeyChecking=no" -i "${{ needs.B_build.outputs.setup_server_private_key }}" -N -L 2222:"${{az1_private_subnet_ec2_private_ip}}":22 ec2_user@bastion_host_public_ip
-      env:
-        BASTION_SSH_KEY: ${{ secrets.BASTION_SSH_KEY }}  # Add the bastion host's private key as a secret
-        EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}  # Add the private EC2 instance's private key as a secret
-    
-    
-    
+        ssh -o "StrictHostKeyChecking=no" -i "${{ needs.B_build.outputs.setup_server_private_key }}" -N -L 2222:"${{az1_private_subnet_ec2_private_ip}}":22 ec2_user@"${{bh_public_ip}}"
+  
     - name: SSH into Private Server and Configure it
       uses: appleboy/ssh-action@master
       with:
@@ -132,11 +127,12 @@ jobs:
           ssh-add - <<< "${{ needs.B_build.outputs.setup_server_private_key }}"
           ssh -A -i ${{ needs.B_build.outputs.setup_server_private_key }} ec2-user@${{ needs.B_build.outputs.bh_public_ip }}
           ssh -i ${{ needs.B_build.outputs.setup_server_private_key }} ec2-user@$${{ needs.B_build.outputs.bh_private_ip }}
+  
+  G_configure_private_server_AZ2: 
+    needs: F_configure_private_server_AZ1
+    runs-on: ubuntu-latest 
           
-          
-          
-          
-              - name: SSH into Setup Server, Build Docker Image and Run Container
+    - name: SSH into Setup Server, Build Docker Image and Run Container
       uses: appleboy/ssh-action@master
       with:
         host: ${{ needs.B_build.outputs.????? }}
