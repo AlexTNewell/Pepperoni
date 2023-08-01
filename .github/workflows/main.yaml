@@ -126,8 +126,8 @@ jobs:
           # nano /var/www/html/wp-config.php
           service httpd restart
 
-  G_configure_private_server:
-    needs: F_configure_EC2_instance
+  F_configure_private_server:
+    needs: E_configure_EC2_instance
     runs-on: ubuntu-latest
     steps:
     - name: SSH into Private Server and Configure it
