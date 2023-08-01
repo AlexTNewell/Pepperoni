@@ -31,3 +31,20 @@ output "efs_id" {
   sensitive = true
 }
 
+##################### AZ1 EC2 private subnet #####################
+
+output "az1_private_subnet_ec2_private_ip" {
+  value = aws_instance.bastion_host.public_ip
+  sensitive = true
+}
+
+
+
+##################### AZ2 EC2 private subnet #####################
+
+output "az2_private_subnet_ec2_private_ip" {
+  value = aws_instance.bastion_host.public_ip
+  sensitive = true
+}
+
+
