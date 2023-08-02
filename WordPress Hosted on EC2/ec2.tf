@@ -59,8 +59,12 @@ sudo systemctl start docker
 sudo systemctl enable docker
 sudo usermod -aG docker $(whoami)
 docker --version
-echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" >> /etc/fstab
+sudo git clone https://github.com/AlexTNewell/possible-solution.git
+sudo yum install -y amazon-efs-utils
+mkdir -p /var/www/docker_resources
+sudo echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" >> /etc/fstab
 mount -a
+sudo cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
 EOT
 }
 
@@ -92,8 +96,12 @@ sudo systemctl start docker
 sudo systemctl enable docker
 sudo usermod -aG docker $(whoami)
 docker --version
-echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" >> /etc/fstab
+sudo git clone https://github.com/AlexTNewell/possible-solution.git
+sudo yum install -y amazon-efs-utils
+mkdir -p /var/www/docker_resources
+sudo echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" >> /etc/fstab
 mount -a
+sudo cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
 EOT
 }
 
