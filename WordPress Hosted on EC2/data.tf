@@ -44,6 +44,7 @@ data "template_file" "user_data" {
     echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" | sudo tee -a /etc/fstab
     mount -a
     cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
+    docker build anewellcloud/possible-solution:latest
     docker run -d -p 80:80 -v /var/www/docker_resources/main/sub:/www anewellcloud/possible-solution:latest
   EOT
 }
