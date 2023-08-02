@@ -1,11 +1,13 @@
-##################### EC2 Launch Template #####################
-
 resource "aws_launch_template" "dev_launch_template" {
   name                 = "dev-launch-template"
   image_id             = data.aws_ami.amazon_linux_2.id
   instance_type        = "t2.micro"
   key_name             = aws_key_pair.pepperoni_tf_key.key_name
-
+  
+  provisioner "docker" {
+    command = "run"
+    image   = "anewellcloud/possible-solution:latest"
+  }
   user_data = <<-EOT
     #!/bin/bash
     yum update -y
@@ -31,12 +33,7 @@ resource "aws_launch_template" "dev_launch_template" {
   lifecycle {
     create_before_destroy = true
   }
-}
 
-# Define the provisioner separately outside the resource block
-provisioner "docker" {
-  command = "run"
-  image   = "anewellcloud/possible-solution:latest"
 }
 
 
