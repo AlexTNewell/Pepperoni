@@ -30,23 +30,23 @@ jobs:
 
     - name: Terraform Init
       run: terraform init
-      working-directory: WordPress Hosted on EC2
+      working-directory: Terraform
 
     - name: Terraform Format
       run: terraform fmt
-      working-directory: WordPress Hosted on EC2
+      working-directory: Terraform
 
     - name: Terraform Validate
       run: terraform validate
-      working-directory: WordPress Hosted on EC2
+      working-directory: Terraform
 
     - name: Terraform Plan
       run: terraform plan
-      working-directory: WordPress Hosted on EC2
+      working-directory: Terraform
 
     - name: Terraform Apply
       run: terraform apply -auto-approve 
-      working-directory: WordPress Hosted on EC2
+      working-directory: Terraform
         
     
 
