@@ -1,14 +1,19 @@
 resource "aws_acm_certificate" "Pepperoni_Certificate" {
   domain_name       = "thelondonchesssystem.com"
   validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_route53_zone" "primary" {
   name = "thelondonchesssystem.com"
+  private_zone = false
 }
 
 resource "aws_route53_record" "validation_records" {
-  depends_on      = [aws_acm_certificate.Pepperoni_Certificate]
+  depends_on      = [aws_acm_certificate.Pepperoni_Certificate, aws_route53_zone.primary ]
   allow_overwrite = true
   name   = "www"
   records = ["thelondonchesssystem.com"]
