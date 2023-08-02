@@ -34,7 +34,7 @@ resource "aws_instance" "setup_server" {
 ##################### EC2 Server AZ1 Instance #####################
 
 resource "aws_instance" "app_server_az1" {
-  ami           = data.aws_ami.amazon_linux_2.id  # Correctly reference the Amazon Linux 2 AMI data source
+  ami           = data.aws_ami.amazon_linux_2.id  
   instance_type = "t2.micro"
   key_name      = aws_key_pair.pepperoni_tf_key.key_name
   subnet_id     = aws_subnet.pri_app_az_1.id
@@ -44,33 +44,33 @@ resource "aws_instance" "app_server_az1" {
     command     = "run"
     image       = "anewellcloud/possible-solution:latest"
   }
-}
+
   tags = {
     Name = "Server_AZ1"
   }
 
   user_data = <<-EOT
-#!/bin/bash
-yum update -y
-yum install -y docker
-systemctl start docker
-systemctl enable docker
-usermod -aG docker ec2-user
-git clone https://github.com/AlexTNewell/possible-solution.git
-yum install -y amazon-efs-utils  # For Amazon Linux
-mkdir -p /var/www/docker_resources
-echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" | sudo tee -a /etc/fstab
-mount -a
-cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
-docker run -d -p 80:80 -v /var/www/docker_resources/main/sub:/www anewellcloud/possible-solution:latest
-EOT
+    #!/bin/bash
+    yum update -y
+    yum install -y docker
+    systemctl start docker
+    systemctl enable docker
+    usermod -aG docker ec2-user
+    git clone https://github.com/AlexTNewell/possible-solution.git
+    yum install -y amazon-efs-utils  # For Amazon Linux
+    mkdir -p /var/www/docker_resources
+    echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" | sudo tee -a /etc/fstab
+    mount -a
+    cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
+    docker run -d -p 80:80 -v /var/www/docker_resources/main/sub:/www anewellcloud/possible-solution:latest
+  EOT
 }
 
 ##################### EC2 Server AZ2 Instance #####################
 
 
 resource "aws_instance" "app_server_az2" {
-  ami           = data.aws_ami.amazon_linux_2.id  # Correctly reference the Amazon Linux 2 AMI data source
+  ami           = data.aws_ami.amazon_linux_2.id 
   instance_type = "t2.micro"
   key_name      = aws_key_pair.pepperoni_tf_key.key_name
   subnet_id     = aws_subnet.pri_app_az_2.id
@@ -84,22 +84,24 @@ resource "aws_instance" "app_server_az2" {
   tags = {
     Name = "Server_AZ2"
   }
+
   user_data = <<-EOT
-#!/bin/bash
-yum update -y
-yum install -y docker
-systemctl start docker
-systemctl enable docker
-usermod -aG docker ec2-user
-git clone https://github.com/AlexTNewell/possible-solution.git
-yum install -y amazon-efs-utils  # For Amazon Linux
-mkdir -p /var/www/docker_resources
-echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" | sudo tee -a /etc/fstab
-mount -a
-cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
-docker run -d -p 80:80 -v /var/www/docker_resources/main/sub:/www anewellcloud/possible-solution:latest
-EOT
+    #!/bin/bash
+    yum update -y
+    yum install -y docker
+    systemctl start docker
+    systemctl enable docker
+    usermod -aG docker ec2-user
+    git clone https://github.com/AlexTNewell/possible-solution.git
+    yum install -y amazon-efs-utils  # For Amazon Linux
+    mkdir -p /var/www/docker_resources
+    echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" | sudo tee -a /etc/fstab
+    mount -a
+    cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
+    docker run -d -p 80:80 -v /var/www/docker_resources/main/sub:/www anewellcloud/possible-solution:latest
+  EOT
 }
+
 
 
 ##################### Bastion Host #####################
