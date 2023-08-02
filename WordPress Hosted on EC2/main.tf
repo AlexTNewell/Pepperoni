@@ -15,6 +15,10 @@ provider "aws" {
   region = var.primary_region
 }
 
+provider "docker" {
+  host = "unix:///var/run/docker.sock"
+}
+
 module "template_files" {
   source   = "hashicorp/dir/template"
   base_dir = "${path.module}/website-resources"
