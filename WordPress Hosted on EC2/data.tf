@@ -31,7 +31,7 @@ data "aws_ami" "amazon_linux_2" {
 ##################### AWS Launch Config User Data #####################
 
 data "template_file" "user_data" {
-  user_data = <<-EOT
+  template = <<-EOT
     #!/bin/bash
     yum update -y
     yum install -y docker
