@@ -5,7 +5,6 @@ resource "aws_acm_certificate" "Pepperoni_Certificate" {
 
 resource "aws_route53_zone" "primary" {
   name = "thelondonchesssystem.com"
-  private_zone = false
 }
 
 resource "aws_route53_record" "validation_records" {
