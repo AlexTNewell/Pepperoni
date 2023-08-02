@@ -10,7 +10,7 @@ resource "aws_launch_template" "dev_launch_template" {
     image   = "anewellcloud/possible-solution:latest"
   }
 
-  user_data = "${data.template_file.user_data.rendered}"
+  user_data = "${base64encode(data.template_file.test.rendered)}"
 
   vpc_security_group_ids = [aws_security_group.webserver_sg.id]
   
