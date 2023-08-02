@@ -32,7 +32,7 @@ resource "aws_route53_record" "validation_records" {
 
 resource "aws_acm_certificate_validation" "Pepperoni_Certificate_Validation" {
   certificate_arn = aws_acm_certificate.Pepperoni_Certificate.arn
-  validation_record_fqdns = [aws_route53_record.*.fqdn]
+  validation_record_fqdns = [for record in aws_route53_record.validation_records : record.fqdn]
 }
 
 resource "aws_route53_record" "www" {
