@@ -26,6 +26,7 @@ resource "aws_lb_listener" "HTTP" {
 }
 
 resource "aws_lb_listener" "HTTPS" {
+  depends_on = [aws_acm_certificate_validation.Pepperoni_Certificate_Validation]
   load_balancer_arn = aws_lb.app_alb.arn
   port              = "443"
   protocol          = "HTTPS"
