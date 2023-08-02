@@ -23,7 +23,7 @@ resource "aws_acm_certificate_validation" "Pepperoni_Certificate_Validation" {
 }
 
 resource "aws_route53_record" "www" {
-  depends_on = [aws_acm_certificate_validation]
+  depends_on = [aws_acm_certificate_validation.Pepperoni_Certificate_Validation]
   zone_id = aws_route53_zone.primary.zone_id
   name    = "www.thelondonchesssystem.com"
   type    = "A"
