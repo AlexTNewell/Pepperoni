@@ -33,11 +33,11 @@ jobs:
         username: ec2-user
         key: ${{ secrets.SETUP_SERVER_PRIVATE_IP }}
         script: |
-          git clone https://github.com/AlexTNewell/tech-test.git
+          sudo git clone https://github.com/AlexTNewell/possible-solution.git
           sudo yum install -y amazon-efs-utils
           mkdir -p /var/www/docker_resources
           sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport "${{ secrets.EFS_ID }}":/ /var/www/docker_resources
-          sudo cp -r /home/ec2-user/tech-test/* /var/www/docker_resources
+          sudo cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
 
   D_configure_private_server:
     needs: C_configure_EC2_instance
