@@ -121,7 +121,7 @@ resource "aws_security_group_rule" "efs_sg_inbound_rule_3" {
 ##################### ACM #####################
 
 resource "aws_acm_certificate" "Pepperoni_Certificate" {
-  domain_name       = "pimlicofilms.com"
+  domain_name       = "thelondonchesssystem.com"
   validation_method = "DNS"
 }
 
