@@ -1,0 +1,76 @@
+resource "aws_launch_template" "dev_launch_template" {
+  name                 = "dev-launch-template"
+  image_id             = data.aws_ami.amazon_linux_2.id
+  instance_type        = "t2.micro"
+  key_name             = aws_key_pair.pepperoni_tf_key.key_name
+  
+  
+  provisioner "docker" {
+    command = "run"
+    image   = "anewellcloud/possible-solution:latest"
+  }
+
+user_data = base64encode(<<-EOT
+#!/bin/bash
+yum update -y
+yum install -y docker
+systemctl start docker
+systemctl enable docker
+usermod -aG docker ec2-user
+git clone https://github.com/AlexTNewell/possible-solution.git
+yum install -y amazon-efs-utils  # For Amazon Linux
+mkdir -p /var/www/docker_resources
+echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" | sudo tee -a /etc/fstab
+mount -a
+cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
+docker run -d -p 80:80 -v /var/www/docker_resources/main/sub:/www anewellcloud/possible-solution:latest
+EOT
+)
+
+  vpc_security_group_ids = [aws_security_group.webserver_sg.id]
+  
+  monitoring {
+    enabled = true
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+##################### ASG #####################
+
+resource "aws_autoscaling_group" "dev_asg" {
+  name                 = "dev_asg"
+  vpc_zone_identifier = [aws_subnet.pri_app_az_1.id, aws_subnet.pri_app_az_2.id]
+  target_group_arns = [aws_lb_target_group.dev_target_group.arn]
+  health_check_type = "ELB"
+  enabled_metrics = ["GroupTotalInstances"]
+  launch_template {
+    id      = aws_launch_template.dev_launch_template.id
+  }
+  desired_capacity = 2
+  min_size             = 1
+  max_size             = 4
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+##################### ASG Notification #####################
+
+resource "aws_autoscaling_notification" "asg_notifications" {
+  group_names = [
+    aws_autoscaling_group.dev_asg.name,
+  ]
+
+  notifications = [
+    "autoscaling:EC2_INSTANCE_LAUNCH",
+    "autoscaling:EC2_INSTANCE_TERMINATE",
+    "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+    "autoscaling:EC2_INSTANCE_TERMINATE_ERROR",
+  ]
+
+  topic_arn = aws_sns_topic.dev_server_updates.arn
+}
