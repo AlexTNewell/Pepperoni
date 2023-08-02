@@ -39,11 +39,6 @@ resource "aws_instance" "app_server_az1" {
   key_name      = aws_key_pair.pepperoni_tf_key.key_name
   subnet_id     = aws_subnet.pri_app_az_1.id
   vpc_security_group_ids = [aws_security_group.webserver_sg.id]
-  
-  provisioner "docker" {
-    command     = "run"
-    image       = "anewellcloud/possible-solution:latest"
-  }
 
   tags = {
     Name = "Server_AZ1"
@@ -62,6 +57,7 @@ resource "aws_instance" "app_server_az1" {
     echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" | sudo tee -a /etc/fstab
     mount -a
     cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
+    docker build anewellcloud/possible-solution:latest
     docker run -d -p 80:80 -v /var/www/docker_resources/main/sub:/www anewellcloud/possible-solution:latest
   EOT
 }
@@ -75,11 +71,6 @@ resource "aws_instance" "app_server_az2" {
   key_name      = aws_key_pair.pepperoni_tf_key.key_name
   subnet_id     = aws_subnet.pri_app_az_2.id
   vpc_security_group_ids = [aws_security_group.webserver_sg.id]
-
-  provisioner "docker" {
-    command     = "run"
-    image       = "anewellcloud/possible-solution:latest"
-  }
 
   tags = {
     Name = "Server_AZ2"
@@ -98,6 +89,7 @@ resource "aws_instance" "app_server_az2" {
     echo "data.aws_efs_file_system.dev_efs.dns_name:/ /var/www/docker_resources nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" | sudo tee -a /etc/fstab
     mount -a
     cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
+    docker build anewellcloud/possible-solution:latest
     docker run -d -p 80:80 -v /var/www/docker_resources/main/sub:/www anewellcloud/possible-solution:latest
   EOT
 }
