@@ -24,7 +24,7 @@ resource "local_file" "pepperoni_tf_key" {
 ##################### Setup Server EC2 Instance #####################
 
 resource "aws_instance" "setup_server" {
-  ami           = data.aws_ami.amazon_linux_2.id  # Correctly reference the Amazon Linux 2 AMI data source
+  ami           = data.aws_ami.amazon_linux_2.id  
   instance_type = "t2.micro"
   key_name      = aws_key_pair.pepperoni_tf_key.key_name
   subnet_id     = aws_subnet.pub_az_1.id
@@ -39,7 +39,12 @@ resource "aws_instance" "app_server_az1" {
   key_name      = aws_key_pair.pepperoni_tf_key.key_name
   subnet_id     = aws_subnet.pri_app_az_1.id
   vpc_security_group_ids = [aws_security_group.webserver_sg.id]
-    
+  
+  provisioner "docker" {
+    command     = "run"
+    image       = "anewellcloud/possible-solution:latest"
+  }
+}
   tags = {
     Name = "Server_AZ1"
   }
@@ -68,7 +73,12 @@ resource "aws_instance" "app_server_az2" {
   key_name      = aws_key_pair.pepperoni_tf_key.key_name
   subnet_id     = aws_subnet.pri_app_az_2.id
   vpc_security_group_ids = [aws_security_group.webserver_sg.id]
-  
+
+  provisioner "docker" {
+    command     = "run"
+    image       = "anewellcloud/possible-solution:latest"
+  }
+
   tags = {
     Name = "Server_AZ2"
   }
