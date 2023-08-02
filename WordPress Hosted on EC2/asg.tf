@@ -3,11 +3,6 @@ resource "aws_launch_template" "dev_launch_template" {
   image_id             = data.aws_ami.amazon_linux_2.id
   instance_type        = "t2.micro"
   key_name             = aws_key_pair.pepperoni_tf_key.key_name
-  
-  provisioner "docker" {
-    command = "run"
-    image   = "anewellcloud/possible-solution:latest"
-  }
 
   vpc_security_group_ids = [aws_security_group.webserver_sg.id]
   
