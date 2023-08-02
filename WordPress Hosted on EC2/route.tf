@@ -8,6 +8,7 @@ resource "aws_route53_zone" "primary" {
 }
 
 resource "aws_route53_record" "validation_records" {
+  depends_on      = [aws_acm_certificate.Pepperoni_Certificate]
   allow_overwrite = true
   name   = tolist(aws_acm_certificate.Pepperoni_Certificate.domain_validation_options)[0].resource_record_name
   records = [ tolist(aws_acm_certificate.Pepperoni_Certificate.domain_validation_options)[0].resource_record_value ]
@@ -22,6 +23,7 @@ resource "aws_acm_certificate_validation" "Pepperoni_Certificate_Validation" {
 }
 
 resource "aws_route53_record" "www" {
+  depends_on = [aws_acm_certificate_validation]
   zone_id = aws_route53_zone.primary.zone_id
   name    = "www.thelondonchesssystem.com"
   type    = "A"
