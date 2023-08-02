@@ -3,11 +3,21 @@ resource "aws_launch_template" "dev_launch_template" {
   image_id             = data.aws_ami.amazon_linux_2.id
   instance_type        = "t2.micro"
   key_name             = aws_key_pair.pepperoni_tf_key.key_name
+  vpc_security_group_ids = [aws_security_group.webserver_sg.id]
   
   provisioner "docker" {
     command = "run"
     image   = "anewellcloud/possible-solution:latest"
   }
+  
+  monitoring {
+    enabled = true
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
   user_data = <<-EOT
     #!/bin/bash
     yum update -y
@@ -23,17 +33,6 @@ resource "aws_launch_template" "dev_launch_template" {
     cp -r /home/ec2-user/possible-solution/* /var/www/docker_resources
     docker run -d -p 80:80 -v /var/www/docker_resources/main/sub:/www anewellcloud/possible-solution:latest
   EOT
-
-  vpc_security_group_ids = [aws_security_group.webserver_sg.id]
-
-  monitoring {
-    enabled = true
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
 }
 
 
