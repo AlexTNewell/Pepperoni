@@ -10,9 +10,9 @@ resource "aws_route53_zone" "primary" {
 resource "aws_route53_record" "validation_records" {
   depends_on      = [aws_acm_certificate.Pepperoni_Certificate]
   allow_overwrite = true
-  name   = tolist(aws_acm_certificate.Pepperoni_Certificate.domain_validation_options)[0].resource_record_name
-  records = [ tolist(aws_acm_certificate.Pepperoni_Certificate.domain_validation_options)[0].resource_record_value ]
-  type   = tolist(aws_acm_certificate.Pepperoni_Certificate.domain_validation_options)[0].resource_record_type
+  name   = "www"
+  records = "thelondonchesssystem.com"
+  type   = "CNAME"
   zone_id = aws_route53_zone.primary.zone_id
   ttl             = 60
 }
