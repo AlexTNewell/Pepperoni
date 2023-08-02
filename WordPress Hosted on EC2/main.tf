@@ -16,7 +16,8 @@ provider "aws" {
 }
 
 provider "docker" {
-  host = "unix:///var/run/docker.sock"
+  version = "~> 3.0.2"
+  host    = "unix:///var/run/docker.sock"
 }
 
 module "template_files" {
