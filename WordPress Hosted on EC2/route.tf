@@ -9,7 +9,7 @@ resource "aws_route53_zone" "primary" {
 
 resource "aws_route53_record" "validation_records" {
   for_each = {
-    for dvo in aws_acm_certificate.example.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.Pepperoni_Certificate.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
