@@ -14,20 +14,26 @@ resource "aws_route53_zone" "primary" {
 resource "aws_route53_record" "validation_records" {
   depends_on      = [aws_acm_certificate.Pepperoni_Certificate, aws_route53_zone.primary]
   allow_overwrite = true
-
   zone_id = data.aws_route53_zone.primary.zone_id
-  ttl = 60
-
-  name    = aws_acm_certificate.Pepperoni_Certificate.domain_validation_options.0.resource_record_name
-  type    = aws_acm_certificate.Pepperoni_Certificate.domain_validation_options.0.resource_record_type
-  records = [ aws_acm_certificate.Pepperoni_Certificate.domain_validation_options.0.resource_record_value ]
+  for_each = {
+      for dvo in aws_acm_certificate.Pepperoni_Certificate.domain_validation_options : dvo.domain_name => {
+        name   = dvo.resource_record_name
+        record = dvo.resource_record_value
+        type   = dvo.resource_record_type
+      }
+    }
+  
+    name            = each.value.name
+    records         = [each.value.record]
+    ttl             = 60
+    type            = each.value.type
 
 }
 
 resource "aws_acm_certificate_validation" "Pepperoni_Certificate_Validation" {
   depends_on      = [aws_acm_certificate.Pepperoni_Certificate, aws_route53_zone.primary]
   certificate_arn = aws_acm_certificate.Pepperoni_Certificate.arn
-  validation_record_fqdns = aws_acm_certificate.Pepperoni_Certificate.domain_validation_options.0.resource_record_name
+  validation_record_fqdns = [for record in aws_route53_record.validation_records : record.value.fqdn]
 }
 
 resource "aws_route53_record" "www" {
