@@ -4,11 +4,6 @@ data "aws_efs_file_system" "dev_efs" {
   file_system_id = aws_efs_file_system.dev_efs.id
 }
 
-##################### Hosted Zone #####################
-
-data "aws_route53_zone" "primary" {
-    name            = "thelondonchesssystem.com"
-}
 
 ##################### Public IP #####################
 
