@@ -11,15 +11,11 @@ resource "aws_route53_zone" "primary" {
   name = "thelondonchesssystem.com"
 }
 
-data "aws_route53_zone" "primary" {
-    name            = "thelondonchesssystem.com"
-}
-
 
 resource "aws_route53_record" "validation_records" {
   depends_on      = [aws_acm_certificate.Pepperoni_Certificate, aws_route53_zone.primary]
   allow_overwrite = true
-  zone_id = data.aws_route53_zone.primary.zone_id
+  zone_id = aws_route53_zone.primary.zone_id
   for_each = {
       for dvo in aws_acm_certificate.Pepperoni_Certificate.domain_validation_options : dvo.domain_name => {
         name   = dvo.resource_record_name
