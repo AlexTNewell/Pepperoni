@@ -11,6 +11,11 @@ resource "aws_route53_zone" "primary" {
   name = "thelondonchesssystem.com"
 }
 
+data "aws_route53_zone" "primary" {
+    name            = "thelondonchesssystem.com"
+}
+
+
 resource "aws_route53_record" "validation_records" {
   depends_on      = [aws_acm_certificate.Pepperoni_Certificate, aws_route53_zone.primary]
   allow_overwrite = true
