@@ -8,7 +8,6 @@ data "aws_efs_file_system" "dev_efs" {
 
 data "aws_route53_zone" "primary" {
     name            = "thelondonchesssystem.com"
-    private_zone    = false
 }
 
 ##################### Public IP #####################
