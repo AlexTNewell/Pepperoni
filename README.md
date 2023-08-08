@@ -6,7 +6,7 @@ Key Points:
 - SSL certificate: Encrypt HTTP traffic.
 - ALB: ensure individual EC2s are not overloaded and remain responsive.
 - Subnets &amp; Bastion hosts: Allows the ec2s to run securely in the backend.
-- EC2 user data: Automatically pull the docker image from Docker hub and run a container upon instantiation
+- EC2 user data: Automatically pull the docker image from Dockerhub and run a container upon instantiation
 - ASG: Ensures the system scales to meet demand and that new EC2s automatically.
 - Multi-AZ: Provisioned across two AZs for fault tolerance
 
