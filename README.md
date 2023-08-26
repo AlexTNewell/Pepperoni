@@ -5,7 +5,7 @@ This project uses GitHub Actions and Terraform to automatically provision a webs
 ## The Web Server
 I choose NGINX for its high performance, low resource usage and event-driven architecture. 
 
-## The Infrastructure
+## Key Infrastructure
 
 - Route53: Allow access via a clean domain name.
 - SSL certificate: Encrypt HTTP traffic.
