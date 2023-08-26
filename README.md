@@ -1,4 +1,4 @@
-# Website Hosted on EC2 using NGINX & Docker
+# Website About The London System (Chess Opening)
 
 This project uses GitHub Actions and Terraform to automatically provision a website running on NGINX inside Docker containers hosted on EC2 instances. 
 
