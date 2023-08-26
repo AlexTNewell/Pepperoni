@@ -1,6 +1,6 @@
 # Website About The London System (Chess Opening)
 
-This project uses GitHub Actions and Terraform to automatically provision a website running on NGINX inside Docker containers hosted on EC2 instances. 
+This project uses GitHub Actions and Terraform to automatically provision a website about the London System (a chess opening) that runs on NGINX inside Docker containers hosted on EC2 instances. 
 
 ## The Web Server
 I choose NGINX for its high performance, low resource usage and event-driven architecture. 
